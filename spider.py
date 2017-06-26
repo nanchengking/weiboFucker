@@ -1,8 +1,28 @@
+#coding=utf-8
+import csv
+import wordcloud
+import jieba
+import requests
+import time
+import codecs
+
+
+def cleanring(text):
+    '''
+    clean text
+    '''
+    return text
+
 def fetch_weibo():
-    api = "http://m.weibo.cn/index/my?format=cards&page=%s"
+    cookies=read_cookie()
     for i in range(1, 102):
-        response = requests.get(url=api % i, cookies=cookies)
-        data = response.json()[0]
+        print("fetch number: %s"%i)
+        api = "http://m.weibo.cn/index/my?format=cards&page=%s"%i
+        response = requests.get(url=api, cookies=cookies).json()
+        if not response:
+            print("no response!!!")
+            break
+        data = response[0]
         groups = data.get("card_group") or []
         for group in groups:
             text = group.get("mblog").get("text")
@@ -10,6 +30,17 @@ def fetch_weibo():
             text = cleanring(text).strip()
             yield text
 
+def read_cookie():
+    '''
+    读取cookei
+    '''
+    cookie=open("cookie.txt")
+    cookie=cookie.read()
+    cookie_map={}
+    for i in cookie.split(';'):
+        arr=i.split("=")
+        cookie_map[arr[0].strip()]=arr[1].strip()
+    return cookie_map
 def write_csv(texts):
     '''
     保存数据
@@ -20,11 +51,20 @@ def write_csv(texts):
         for text in texts:
             writer.writerow({"text": text})
 
+
+if __name__ =="__main__":
+    print("start")
+    write_csv(fetch_weibo())
+
+
+
 def read_csv():
     with codecs.open('weibo.csv', 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
             yield row['text']
+
+
 
 def word_segment(texts):
     '''
