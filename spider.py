@@ -33,7 +33,7 @@ def cleanring(content):
 def fetch_weibo():
     api = "http://m.weibo.cn/index/my?format=cards&page=%s"
     cookies=read_cookie()
-    for i in range(1, 12):
+    for i in range(1, 102):
         response = requests.get(url=api % i, cookies=cookies)
         data = response.json()[0]
         if not data:
